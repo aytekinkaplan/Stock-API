@@ -3,27 +3,35 @@
     | FULLSTACK TEAM | NODEJS / EXPRESS |
 ------------------------------------------------------- */
 const { mongoose } = require("../configs/dbConnection");
+/* ------------------------------------------------------- *
+{
+    "name": "Firm -1"
+}
 /* ------------------------------------------------------- */
-const firmSchema = new mongoose.Schema(
+// Firm Model:
+
+const FirmSchema = new mongoose.Schema(
   {
     name: {
       type: String,
+      trim: true,
       required: true,
       unique: true,
-      trim: true,
     },
+
     phone: {
       type: String,
-      required: true,
       trim: true,
     },
+
     address: {
       type: String,
-      required: true,
       trim: true,
     },
+
     image: {
       type: String,
+      trim: true,
     },
   },
   {
@@ -32,4 +40,5 @@ const firmSchema = new mongoose.Schema(
   }
 );
 
-module.exports = mongoose.model("Firm", firmSchema);
+/* ------------------------------------------------------- */
+module.exports = mongoose.model("Firm", FirmSchema);

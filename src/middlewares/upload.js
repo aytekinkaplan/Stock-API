@@ -2,11 +2,8 @@
 /* -------------------------------------------------------
     | FULLSTACK TEAM | NODEJS / EXPRESS |
 ------------------------------------------------------- */
-// Middleware: upload
-// npm i multer
+// app.use(upload.array('fieldName'))
 
-// Multer: UploadFile:
-// https://expressjs.com/en/resources/middleware/multer.html
 const multer = require("multer");
 
 module.exports = multer({

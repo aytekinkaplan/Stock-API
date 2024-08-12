@@ -3,23 +3,32 @@
     | FULLSTACK TEAM | NODEJS / EXPRESS |
 ------------------------------------------------------- */
 const { mongoose } = require("../configs/dbConnection");
+/* ------------------------------------------------------- *
+{
+    "name": "Brand -1"
+}
 /* ------------------------------------------------------- */
-const brandSchema = new mongoose.Schema(
+// Brand Model:
+
+const BrandSchema = new mongoose.Schema(
   {
     name: {
       type: String,
+      trim: true,
       required: true,
       unique: true,
-      trim: true,
     },
+
     image: {
       type: String,
+      trim: true,
     },
   },
   {
-    collection: "brands", // Collection Name (küçük harf)
-    timestamps: true, // Timestamps
+    collection: "brands",
+    timestamps: true,
   }
 );
 
-module.exports = mongoose.model("Brand", brandSchema); // Model adı tekil
+/* ------------------------------------------------------- */
+module.exports = mongoose.model("Brand", BrandSchema);

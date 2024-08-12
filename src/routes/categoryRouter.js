@@ -4,13 +4,21 @@
 ------------------------------------------------------- */
 const router = require("express").Router();
 /* ------------------------------------------------------- */
+// routes/category:
 
-const categoryController = require("../controllers/categoryController");
+const category = require("../controllers/categoryController");
 
-router.post("/create", categoryController.create);
-router.get("/get", categoryController.getCategories);
-router.get("/get/:id", categoryController.getCategory);
-router.delete("/delete/:id", categoryController.deleteCategory);
-router.put("/update/:id", categoryController.updateCategory);
+// URL: /categorys
 
+router.route("/").get(category.list).post(category.create);
+
+router
+  .route("/:id")
+  .get(category.read)
+  .put(category.update)
+  .patch(category.update)
+  .delete(category.delete);
+
+/* ------------------------------------------------------- */
+// Exports:
 module.exports = router;

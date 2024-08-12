@@ -4,14 +4,21 @@
 ------------------------------------------------------- */
 const router = require("express").Router();
 /* ------------------------------------------------------- */
+// routes/firm:
 
-const firmController = require("../controllers/firmController");
+const firm = require("../controllers/firmController");
 
-router.post("/create", firmController.create);
-router.get("/get", firmController.getFirms);
-router.get("/get/:id", firmController.getFirm);
-router.delete("/delete/:id", firmController.deleteFirm);
-router.put("/update/:id", firmController.updateFirm);
-router.post("/search", firmController.searchFirm);
+// URL: /firms
 
+router.route("/").get(firm.list).post(firm.create);
+
+router
+  .route("/:id")
+  .get(firm.read)
+  .put(firm.update)
+  .patch(firm.update)
+  .delete(firm.delete);
+
+/* ------------------------------------------------------- */
+// Exports:
 module.exports = router;

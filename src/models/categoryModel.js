@@ -3,20 +3,27 @@
     | FULLSTACK TEAM | NODEJS / EXPRESS |
 ------------------------------------------------------- */
 const { mongoose } = require("../configs/dbConnection");
+/* ------------------------------------------------------- *
+{
+    "name": "Category -1"
+}
 /* ------------------------------------------------------- */
-const categorySchema = new mongoose.Schema(
+// Category Model:
+
+const CategorySchema = new mongoose.Schema(
   {
     name: {
       type: String,
+      trim: true,
       required: true,
       unique: true,
-      trim: true,
     },
   },
   {
-    collection: "categories", // Collection Name (küçük harf)
-    timestamps: true, // Timestamps
+    collection: "categories",
+    timestamps: true,
   }
 );
 
-module.exports = mongoose.model("Category", categorySchema); // Model adı tekil
+/* ------------------------------------------------------- */
+module.exports = mongoose.model("Category", CategorySchema);

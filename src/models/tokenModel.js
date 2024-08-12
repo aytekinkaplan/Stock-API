@@ -3,8 +3,12 @@
     | FULLSTACK TEAM | NODEJS / EXPRESS |
 ------------------------------------------------------- */
 const { mongoose } = require("../configs/dbConnection");
-/* ------------------------------------------------------- */
-
+/* ------------------------------------------------------- *
+{
+    "userId": "65343222b67e9681f937f001",
+    "token": "...tokenKey..."
+  }
+  /* ------------------------------------------------------- */
 // Token Model:
 
 const TokenSchema = new mongoose.Schema(
@@ -14,16 +18,21 @@ const TokenSchema = new mongoose.Schema(
       ref: "User",
       required: true,
       index: true,
+      unique: true,
     },
+
     token: {
       type: String,
       trim: true,
       required: true,
       index: true,
-      unique: true, // Token'ın benzersiz olduğunu belirtir
+      unique: true,
     },
   },
-  { collection: "tokens", timestamps: true }
+  {
+    collection: "tokens",
+    timestamps: true,
+  }
 );
 
 /* ------------------------------------------------------- */

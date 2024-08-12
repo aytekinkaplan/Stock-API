@@ -2,115 +2,105 @@
 /* -------------------------------------------------------
     | FULLSTACK TEAM | NODEJS / EXPRESS |
 ------------------------------------------------------- */
-const Firm = require("../models/firmModel");
-const { validationResult } = require("express-validator");
-const CustomError = require("../errors/customError");
+// firm Controllers:
+
+const firm = require("../models/firmModel");
 
 module.exports = {
-  getFirms: async (req, res) => {
+  list: async (req, res) => {
     /*
-            #swagger.tags = ["Firms"]
-            #swagger.summary = "Get all firms"
-            #swagger.description = 'Get all firms.'
+            #swagger.tags = ["firms"]
+            #swagger.summary = "List firms"
+            #swagger.description = `
+                You can use <u>filter[] & search[] & sort[] & page & limit</u> queries with endpoint.
+                <ul> Examples:
+                    <li>URL/?<b>filter[field1]=value1&filter[field2]=value2</b></li>
+                    <li>URL/?<b>search[field1]=value1&search[field2]=value2</b></li>
+                    <li>URL/?<b>sort[field1]=asc&sort[field2]=desc</b></li>
+                    <li>URL/?<b>limit=10&page=1</b></li>
+                </ul>
+            `
         */
 
-    const firms = await Firm.find();
-    res.json(firms);
+    const data = await res.getModelList(firm);
+
+    res.status(200).send({
+      error: false,
+      details: await res.getModelListDetails(firm),
+      data,
+    });
   },
 
-  getFirm: async (req, res) => {
+  create: async (req, res) => {
     /*
-            #swagger.tags = ["Firms"]
-            #swagger.summary = "Get one firm"
-            #swagger.description = 'Get one firm.'
-            #swagger.parameters['id'] = {
-                in: 'path',
-                description: 'id of the firm',
-                type: 'string'
-            }
-        */
-    const firm = await Firm.findOne({ _id: req.params.id });
-    res.json(firm);
-  },
-
-  createFirm: async (req, res) => {
-    /*
-            #swagger.tags = ["Firms"]
+            #swagger.tags = ["firms"]
             #swagger.summary = "Create firm"
-            #swagger.description = 'Create firm.'
             #swagger.parameters['body'] = {
                 in: 'body',
-                description: 'Firm name',
+                required: true,
                 schema: {
-                    "name": "test",
+                    $ref: "#/definitions/firm"
                 }
             }
         */
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() });
-    }
 
-    const { name } = req.body;
-    const firm = new Firm({ name });
-    await firm.save();
-    res.json(firm);
+    const data = await firm.create(req.body);
+
+    res.status(201).send({
+      error: false,
+      data,
+    });
   },
 
-  updateFirm: async (req, res) => {
+  read: async (req, res) => {
     /*
-            #swagger.tags = ["Firms"]
+            #swagger.tags = ["firms"]
+            #swagger.summary = "Get Single firm"
+        */
+
+    const data = await firm.findOne({ _id: req.params.id });
+
+    res.status(200).send({
+      error: false,
+      data,
+    });
+  },
+
+  update: async (req, res) => {
+    /*
+            #swagger.tags = ["firms"]
             #swagger.summary = "Update firm"
-
-            #swagger.parameters['id'] = {
-                in: 'path',
-                description: 'id of the firm',
-                type: 'string'
-            } 
-
             #swagger.parameters['body'] = {
                 in: 'body',
-                description: 'Firm name',
+                required: true,
                 schema: {
-                    "name": "test",
+                    $ref: "#/definitions/firm"
                 }
             }
         */
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() });
-    }
 
-    const { name } = req.body;
-    const firm = await Firm.findOneAndUpdate(
-      { _id: req.params.id },
-      { name },
-      { new: true }
-    );
-    res.json(firm);
+    const data = await firm.updateOne({ _id: req.params.id }, req.body, {
+      runValidators: true,
+    });
+
+    res.status(202).send({
+      error: false,
+      data,
+      new: await firm.findOne({ _id: req.params.id }),
+    });
   },
 
-  deleteFirm: async (req, res) => {
+  delete: async (req, res) => {
     /*
-            #swagger.tags = ["Firms"]
+            #swagger.tags = ["firms"]
             #swagger.summary = "Delete firm"
-
-            #swagger.parameters['id'] = {
-                in: 'path',
-                description: 'id of the firm',
-                type: 'string'
-            }
         */
-    const firm = await Firm.findOneAndDelete({ _id: req.params.id });
-    res.json(firm);
-  },
 
-  deleteFirms: async (req, res) => {
-    /*
-            #swagger.tags = ["Firms"]
-            #swagger.summary = "Delete firms"
-        */
-    const firms = await Firm.deleteMany();
-    res.json(firms);
+    const data = await firm.deleteOne({ _id: req.params.id });
+
+    res.status(data.deletedCount ? 204 : 404).send({
+      error: !data.deletedCount,
+      data,
+    });
   },
 };

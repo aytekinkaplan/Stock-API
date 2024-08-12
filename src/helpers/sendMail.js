@@ -2,79 +2,42 @@
 /* -------------------------------------------------------
     | FULLSTACK TEAM | NODEJS / EXPRESS |
 ------------------------------------------------------- */
-// sendMail(to, subject, message):
+// node i nodemailer
+// sendMail(to:string, subject:string, message:string):
 
 const nodemailer = require("nodemailer");
 
 module.exports = function (to, subject, message) {
-  // Create Test (Fake) Email Account:
-  // nodemailer.createTestAccount().then((email) => console.log(email))
-  /*
-    {
-      user: 'dt2luxwyjdzufq7a@ethereal.email',
-      pass: 'RyTdGXyWEbVVuaNFSY',
-      smtp: { host: 'smtp.ethereal.email', port: 587, secure: false },
-      imap: { host: 'imap.ethereal.email', port: 993, secure: true },
-      pop3: { host: 'pop3.ethereal.email', port: 995, secure: true },
-      web: 'https://ethereal.email'
-    }
-    */
-  /*
-    // Connect to mail-server:
-    const transporter = nodemailer.createTransport({
-         // SMTP
-        host: 'smtp.ethereal.email',
-        port: 587,
-        secure: false, // true, tls, ssl
-        auth: {
-            user: 'dt2luxwyjdzufq7a@ethereal.email',
-            pass: 'RyTdGXyWEbVVuaNFSY'
-        }
-    })
-    // console.log(transporter)
-    
-    // SendMail:
-    transporter.sendMail({
-        from: 'dt2luxwyjdzufq7a@ethereal.email',
-        to: 'developer@CourseName.com', // 'a@b.com, b@c.com'
-        subject: 'Hello',
-        // Message:
-        text: 'Hello There. How are you?',
-        html: '<b>Hello There.</b> <p>How are you?</p>',
-    }, (error, success) => { 
-        error ? console.log('error:', error) : console.log('success:', success)
-     })
-    */
+  // Set Passive:
+  return true;
 
   //? GoogleMail (gmail):
-  //* Google -> AccountHome -> Security -> Two-Step-Verify -> App-Passwords
+  // Google -> AccountHome -> Security -> Two-Step-Verify -> App-Passwords
+  const mailSettings = {
+    service: "Gmail",
+    user: "username@gmail.com",
+    pass: "password",
+  };
+
+  // Connect to mailServer:
   const transporter = nodemailer.createTransport({
-    service: "gmail",
+    service: mailSettings.service,
     auth: {
-      user: "qadiradamson@gmail.com",
-      pass: "kjbw usic ovbn lipb",
+      user: mailSettings.user,
+      pass: mailSettings.pass,
     },
   });
-
-  // //? YandexMail (yandex):
-  // const transporter = nodemailer.createTransport({
-  //     service: 'Yandex',
-  //     auth: {
-  //         user: 'username@yandex.com',
-  //         pass: 'password' // your emailPassword
-  //     }
-  // })
-
+  // SendMail:
   transporter.sendMail(
     {
-      // from: 'qadiradamson@gmail.com',
-      to: to, // 'developer@CourseName.com',
-      subject: subject, // 'Hello',
-      text: message, // 'Hello There. How are you?',
-      html: message, // '<b>Hello There.</b> <p>How are you?</p>',
+      from: mailSettings.user,
+      to: to,
+      subject: subject,
+      text: message,
+      html: message,
     },
-    (error, success) => {
-      error ? console.log("error:", error) : console.log("success:", success);
+    (error, info) => {
+      error ? console.log(error) : console.log(info);
     }
   );
 };

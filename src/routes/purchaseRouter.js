@@ -4,13 +4,21 @@
 ------------------------------------------------------- */
 const router = require("express").Router();
 /* ------------------------------------------------------- */
+// routes/purchase:
 
-const purchaseController = require("../controllers/purchaseController");
+const purchase = require("../controllers/purchaseController");
 
-router.post("/create", purchaseController.create);
-router.get("/get", purchaseController.getPurchases);
-router.get("/get/:id", purchaseController.getPurchase);
-router.delete("/delete/:id", purchaseController.deletePurchase);
-router.put("/update/:id", purchaseController.updatePurchase);
+// URL: /purchases
 
+router.route("/").get(purchase.list).post(purchase.create);
+
+router
+  .route("/:id")
+  .get(purchase.read)
+  .put(purchase.update)
+  .patch(purchase.update)
+  .delete(purchase.delete);
+
+/* ------------------------------------------------------- */
+// Exports:
 module.exports = router;

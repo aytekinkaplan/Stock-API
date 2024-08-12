@@ -2,126 +2,105 @@
 /* -------------------------------------------------------
     | FULLSTACK TEAM | NODEJS / EXPRESS |
 ------------------------------------------------------- */
-const Purchase = require("../models/purchaseModel");
-const { validationResult } = require("express-validator");
-const CustomError = require("../errors/customError");
+// purchase Controllers:
+
+const purchase = require("../models/purchaseModel");
 
 module.exports = {
-  getPurchases: async (req, res) => {
+  list: async (req, res) => {
     /*
-            #swagger.tags = ["Purchases"]
-            #swagger.summary = "Get all purchases"
-            #swagger.description = 'Get all purchases.'
+            #swagger.tags = ["purchases"]
+            #swagger.summary = "List purchases"
+            #swagger.description = `
+                You can use <u>filter[] & search[] & sort[] & page & limit</u> queries with endpoint.
+                <ul> Examples:
+                    <li>URL/?<b>filter[field1]=value1&filter[field2]=value2</b></li>
+                    <li>URL/?<b>search[field1]=value1&search[field2]=value2</b></li>
+                    <li>URL/?<b>sort[field1]=asc&sort[field2]=desc</b></li>
+                    <li>URL/?<b>limit=10&page=1</b></li>
+                </ul>
+            `
         */
 
-    const purchases = await Purchase.find();
-    res.json(purchases);
+    const data = await res.getModelList(purchase);
+
+    res.status(200).send({
+      error: false,
+      details: await res.getModelListDetails(purchase),
+      data,
+    });
   },
 
-  getPurchase: async (req, res) => {
+  create: async (req, res) => {
     /*
-
-    #swagger.tags = ["Purchases"]
-    #swagger.summary = "Get one purchase"
-    #swagger.description = 'Get one purchase.'
-    #swagger.parameters['id'] = {
-        in: 'path',
-        description: 'id of the purchase',
-        type: 'string'
-    }
-
-    */
-    const purchase = await Purchase.findOne({ _id: req.params.id });
-    res.json(purchase);
-  },
-
-  createPurchase: async (req, res) => {
-    /*
-            #swagger.tags = ["Purchases"]
+            #swagger.tags = ["purchases"]
             #swagger.summary = "Create purchase"
-            #swagger.description = 'Create purchase.'
             #swagger.parameters['body'] = {
                 in: 'body',
-                description: 'Purchase name',
+                required: true,
                 schema: {
-                    "name": "test",
+                    $ref: "#/definitions/purchase"
                 }
             }
         */
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() });
-    }
 
-    const { name } = req.body;
-    const purchase = new Purchase({ name });
-    await purchase.save();
-    res.json(purchase);
+    const data = await purchase.create(req.body);
+
+    res.status(201).send({
+      error: false,
+      data,
+    });
   },
 
-  updatePurchase: async (req, res) => {
+  read: async (req, res) => {
     /*
-            #swagger.tags = ["Purchases"]
+            #swagger.tags = ["purchases"]
+            #swagger.summary = "Get Single purchase"
+        */
+
+    const data = await purchase.findOne({ _id: req.params.id });
+
+    res.status(200).send({
+      error: false,
+      data,
+    });
+  },
+
+  update: async (req, res) => {
+    /*
+            #swagger.tags = ["purchases"]
             #swagger.summary = "Update purchase"
-            #swagger.description = 'Update purchase.'
-            #swagger.parameters['id'] = {
-                in: 'path',
-                description: 'id of the purchase',
-                type: 'string'
-            }
             #swagger.parameters['body'] = {
                 in: 'body',
-                description: 'Purchase name',
+                required: true,
                 schema: {
-                    "name": "test",
+                    $ref: "#/definitions/purchase"
                 }
             }
         */
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() });
-    }
-    const { name } = req.body;
-    const purchase = await Purchase.findOneAndUpdate(
-      { _id: req.params.id },
-      { name },
-      { new: true }
-    );
-    res.json(purchase);
+
+    const data = await purchase.updateOne({ _id: req.params.id }, req.body, {
+      runValidators: true,
+    });
+
+    res.status(202).send({
+      error: false,
+      data,
+      new: await purchase.findOne({ _id: req.params.id }),
+    });
   },
 
-  deletePurchase: async (req, res) => {
+  delete: async (req, res) => {
     /*
-            #swagger.tags = ["Purchases"]
+            #swagger.tags = ["purchases"]
             #swagger.summary = "Delete purchase"
-            #swagger.description = 'Delete purchase.'
-            #swagger.parameters['id'] = {
-                in: 'path',
-                description: 'id of the purchase',
-                type: 'string'
-            }
         */
-    const purchase = await Purchase.findOneAndDelete({ _id: req.params.id });
-    res.json(purchase);
-  },
 
-  deletePurchases: async (req, res) => {
-    /*
-            #swagger.tags = ["Purchases"]
-            #swagger.summary = "Delete purchases"
-            #swagger.description = 'Delete purchases.'
-        */
-    const purchases = await Purchase.deleteMany();
-    res.json(purchases);
-  },
+    const data = await purchase.deleteOne({ _id: req.params.id });
 
-  deleteAllPurchases: async (req, res) => {
-    /*
-            #swagger.tags = ["Purchases"]
-            #swagger.summary = "Delete all purchases"
-            #swagger.description = 'Delete all purchases.'
-        */
-    const purchases = await Purchase.deleteMany();
-    res.json(purchases);
+    res.status(data.deletedCount ? 204 : 404).send({
+      error: !data.deletedCount,
+      data,
+    });
   },
 };

@@ -2,57 +2,74 @@
 /* -------------------------------------------------------
     | FULLSTACK TEAM | NODEJS / EXPRESS |
 ------------------------------------------------------- */
-// Brand Controller:
+// Brand Controllers:
+
 const Brand = require("../models/brandModel");
-const CustomError = require("../errors/customError");
-const { validationResult } = require("express-validator");
 
 module.exports = {
-  getBrands: async (req, res) => {
+  list: async (req, res) => {
     /*
             #swagger.tags = ["Brands"]
-            #swagger.summary = "Get all brands"
+            #swagger.summary = "List Brands"
             #swagger.description = `
-                You can send query with endpoint for search[], sort[], page and limit.
+                You can use <u>filter[] & search[] & sort[] & page & limit</u> queries with endpoint.
                 <ul> Examples:
+                    <li>URL/?<b>filter[field1]=value1&filter[field2]=value2</b></li>
                     <li>URL/?<b>search[field1]=value1&search[field2]=value2</b></li>
-                    <li>URL/?<b>sort[field1]=1&sort[field2]=-1</b></li>
-                    <li>URL/?<b>page=2&limit=1</b></li>
+                    <li>URL/?<b>sort[field1]=asc&sort[field2]=desc</b></li>
+                    <li>URL/?<b>limit=10&page=1</b></li>
                 </ul>
             `
         */
 
-    let customFilter = {};
-    if (req.user?.isAdmin) {
-      customFilter = {};
-    } else if (req.user?.isStaff) {
-      customFilter = { isStaff: true };
-    }
+    const data = await res.getModelList(Brand);
 
-    const data = await Brand.find(customFilter);
     res.status(200).send({
+      error: false,
+      details: await res.getModelListDetails(Brand),
+      data,
+    });
+  },
+
+  create: async (req, res) => {
+    /*
+            #swagger.tags = ["Brands"]
+            #swagger.summary = "Create Brand"
+            #swagger.parameters['body'] = {
+                in: 'body',
+                required: true,
+                schema: {
+                    $ref: "#/definitions/Brand"
+                }
+            }
+        */
+
+    const data = await Brand.create(req.body);
+
+    res.status(201).send({
       error: false,
       data,
     });
   },
 
-  getBrand: async (req, res) => {
+  read: async (req, res) => {
     /*
             #swagger.tags = ["Brands"]
-            #swagger.summary = "Get single brand"
+            #swagger.summary = "Get Single Brand"
         */
 
     const data = await Brand.findOne({ _id: req.params.id });
+
     res.status(200).send({
       error: false,
       data,
     });
   },
 
-  createBrand: async (req, res) => {
+  update: async (req, res) => {
     /*
             #swagger.tags = ["Brands"]
-            #swagger.summary = "Create brand"
+            #swagger.summary = "Update Brand"
             #swagger.parameters['body'] = {
                 in: 'body',
                 required: true,
@@ -61,59 +78,29 @@ module.exports = {
                 }
             }
         */
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() });
-    }
 
-    const { name } = req.body;
-    const brand = new Brand({ name });
-    await brand.save();
-    res.json(brand);
+    const data = await Brand.updateOne({ _id: req.params.id }, req.body, {
+      runValidators: true,
+    });
+
+    res.status(202).send({
+      error: false,
+      data,
+      new: await Brand.findOne({ _id: req.params.id }),
+    });
   },
 
-  updateBrand: async (req, res) => {
+  delete: async (req, res) => {
     /*
             #swagger.tags = ["Brands"]
-            #swagger.summary = "Update brand"
-            #swagger.parameters['id'] = {
-                in: 'path',
-                description: 'id of the brand',
-                type: 'string'
-            }
-            #swagger.parameters['body'] = {
-                in: 'body',
-                required: true,
-                schema: {
-                    $ref: "#/definitions/Brand"
-                }
-            }
+            #swagger.summary = "Delete Brand"
         */
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() });
-    }
 
-    const { name } = req.body;
-    const brand = await Brand.findOneAndUpdate(
-      { _id: req.params.id },
-      { name },
-      { new: true }
-    );
-    res.json(brand);
-  },
+    const data = await Brand.deleteOne({ _id: req.params.id });
 
-  deleteBrand: async (req, res) => {
-    /*
-            #swagger.tags = ["Brands"]
-            #swagger.summary = "Delete brand"
-            #swagger.parameters['id'] = {
-                in: 'path',
-                description: 'id of the brand',
-                type: 'string'
-            }
-        */
-    const brand = await Brand.findOneAndDelete({ _id: req.params.id });
-    res.json(brand);
+    res.status(data.deletedCount ? 204 : 404).send({
+      error: !data.deletedCount,
+      data,
+    });
   },
 };

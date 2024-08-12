@@ -4,33 +4,38 @@
 ------------------------------------------------------- */
 const { mongoose } = require("../configs/dbConnection");
 /* ------------------------------------------------------- */
-const productSchema = new mongoose.Schema(
+// Product Model:
+
+const ProductSchema = new mongoose.Schema(
   {
     categoryId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Category",
       required: true,
     },
+
     brandId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Brand",
       required: true,
     },
+
     name: {
       type: String,
-      required: true,
-      unique: true,
       trim: true,
+      required: true,
     },
+
     quantity: {
       type: Number,
-      required: true,
+      default: 0,
     },
   },
   {
-    collection: "products", // Collection Name (küçük harf)
-    timestamps: true, // Timestamps
+    collection: "products",
+    timestamps: true,
   }
 );
 
-module.exports = mongoose.model("Product", productSchema); // Model adı tekil
+/* ------------------------------------------------------- */
+module.exports = mongoose.model("Product", ProductSchema);

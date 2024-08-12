@@ -4,15 +4,21 @@
 ------------------------------------------------------- */
 const router = require("express").Router();
 /* ------------------------------------------------------- */
+// routes/brand:
 
-const brandController = require("../controllers/brandController");
+const brand = require("../controllers/brandController");
 
-router.post("/create", brandController.create);
-router.get("/get", brandController.getBrands);
-router.get("/get/:id", brandController.getBrand);
-router.delete("/delete/:id", brandController.deleteBrand);
-router.put("/update/:id", brandController.updateBrand);
-router.post("/search", brandController.searchBrand);
-router.post("/filter", brandController.filterBrand);
+// URL: /brands
 
+router.route("/").get(brand.list).post(brand.create);
+
+router
+  .route("/:id")
+  .get(brand.read)
+  .put(brand.update)
+  .patch(brand.update)
+  .delete(brand.delete);
+
+/* ------------------------------------------------------- */
+// Exports:
 module.exports = router;

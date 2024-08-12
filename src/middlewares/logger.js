@@ -7,24 +7,19 @@
 
 const morgan = require("morgan");
 const fs = require("node:fs");
-const path = require("node:path");
+const path = require("path");
 
 const now = new Date();
 const today = now.toISOString().split("T")[0];
 
-const rootDirectory = path.resolve(__dirname, "../..");
-const logDirectory = path.join(rootDirectory, "logs");
+// Log dizinini oluştur
+const logDir = path.join(__dirname, "..", "logs");
+if (!fs.existsSync(logDir)) {
+  fs.mkdirSync(logDir);
+}
 
-if (!fs.existsSync(logDirectory)) {
-  console.log("Logs folder has been created ");
-  fs.mkdirSync(logDirectory, { recursive: true });
-} else console.log("Logs folder is exist");
-
-const logStream = fs.createWriteStream(
-  path.join(logDirectory, `${today}.log`),
-  { flags: "a+" }
-);
+const logFilePath = path.join(logDir, `${today}.log`);
 
 module.exports = morgan("combined", {
-  stream: logStream,
+  stream: fs.createWriteStream(logFilePath, { flags: "a+" }),
 });

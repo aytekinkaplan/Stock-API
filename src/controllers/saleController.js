@@ -2,125 +2,105 @@
 /* -------------------------------------------------------
     | FULLSTACK TEAM | NODEJS / EXPRESS |
 ------------------------------------------------------- */
-const Sale = require("../models/saleModel");
-const { validationResult } = require("express-validator");
-const CustomError = require("../errors/customError");
+// sale Controllers:
+
+const sale = require("../models/saleModel");
 
 module.exports = {
-  getSales: async (req, res) => {
+  list: async (req, res) => {
     /*
-            #swagger.tags = ["Sales"]
-            #swagger.summary = "Get all sales"
-            #swagger.description = 'Get all sales.'
+            #swagger.tags = ["sales"]
+            #swagger.summary = "List sales"
+            #swagger.description = `
+                You can use <u>filter[] & search[] & sort[] & page & limit</u> queries with endpoint.
+                <ul> Examples:
+                    <li>URL/?<b>filter[field1]=value1&filter[field2]=value2</b></li>
+                    <li>URL/?<b>search[field1]=value1&search[field2]=value2</b></li>
+                    <li>URL/?<b>sort[field1]=asc&sort[field2]=desc</b></li>
+                    <li>URL/?<b>limit=10&page=1</b></li>
+                </ul>
+            `
         */
 
-    const sales = await Sale.find();
-    res.json(sales);
+    const data = await res.getModelList(sale);
+
+    res.status(200).send({
+      error: false,
+      details: await res.getModelListDetails(sale),
+      data,
+    });
   },
 
-  getSale: async (req, res) => {
+  create: async (req, res) => {
     /*
-            #swagger.tags = ["Sales"]
-            #swagger.summary = "Get one sale"
-            #swagger.description = 'Get one sale.'
-            #swagger.parameters['id'] = {
-                in: 'path',
-                description: 'id of the sale',
-                type: 'string'
-            }
-        */
-    const sale = await Sale.findOne({ _id: req.params.id });
-    res.json(sale);
-  },
-
-  createSale: async (req, res) => {
-    /*
-            #swagger.tags = ["Sales"]
+            #swagger.tags = ["sales"]
             #swagger.summary = "Create sale"
-            #swagger.description = 'Create sale.'
             #swagger.parameters['body'] = {
                 in: 'body',
-                description: 'Sale name',
+                required: true,
                 schema: {
-                    "name": "test",
+                    $ref: "#/definitions/sale"
                 }
             }
         */
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() });
-    }
 
-    const { name } = req.body;
-    const sale = new Sale({ name });
-    await sale.save();
-    res.json(sale);
+    const data = await sale.create(req.body);
+
+    res.status(201).send({
+      error: false,
+      data,
+    });
   },
 
-  updateSale: async (req, res) => {
+  read: async (req, res) => {
     /*
-            #swagger.tags = ["Sales"]
+            #swagger.tags = ["sales"]
+            #swagger.summary = "Get Single sale"
+        */
+
+    const data = await sale.findOne({ _id: req.params.id });
+
+    res.status(200).send({
+      error: false,
+      data,
+    });
+  },
+
+  update: async (req, res) => {
+    /*
+            #swagger.tags = ["sales"]
             #swagger.summary = "Update sale"
-            #swagger.description = 'Update sale.'
-            #swagger.parameters['id'] = {
-                in: 'path',
-                description: 'id of the sale',
-                type: 'string'
-            }
             #swagger.parameters['body'] = {
                 in: 'body',
-                description: 'Sale name',
+                required: true,
                 schema: {
-                    "name": "test",
+                    $ref: "#/definitions/sale"
                 }
             }
         */
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() });
-    }
 
-    const { name } = req.body;
-    const sale = await Sale.findOneAndUpdate(
-      { _id: req.params.id },
-      { name },
-      { new: true }
-    );
-    res.json(sale);
+    const data = await sale.updateOne({ _id: req.params.id }, req.body, {
+      runValidators: true,
+    });
+
+    res.status(202).send({
+      error: false,
+      data,
+      new: await sale.findOne({ _id: req.params.id }),
+    });
   },
 
-  deleteSale: async (req, res) => {
+  delete: async (req, res) => {
     /*
-            #swagger.tags = ["Sales"]
+            #swagger.tags = ["sales"]
             #swagger.summary = "Delete sale"
-            #swagger.description = 'Delete sale.'
-            #swagger.parameters['id'] = {
-                in: 'path',
-                description: 'id of the sale',
-                type: 'string'
-            }
         */
-    const sale = await Sale.findOneAndDelete({ _id: req.params.id });
-    res.json(sale);
-  },
 
-  deleteSales: async (req, res) => {
-    /*
-            #swagger.tags = ["Sales"]
-            #swagger.summary = "Delete sales"
-            #swagger.description = 'Delete sales.'
-        */
-    const sales = await Sale.deleteMany();
-    res.json(sales);
-  },
+    const data = await sale.deleteOne({ _id: req.params.id });
 
-  deleteAllSales: async (req, res) => {
-    /*
-            #swagger.tags = ["Sales"]
-            #swagger.summary = "Delete all sales"
-            #swagger.description = 'Delete all sales.'
-        */
-    const sales = await Sale.deleteMany();
-    res.json(sales);
+    res.status(data.deletedCount ? 204 : 404).send({
+      error: !data.deletedCount,
+      data,
+    });
   },
 };
