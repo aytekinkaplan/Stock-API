@@ -4,10 +4,10 @@
 ------------------------------------------------------- */
 const express = require("express");
 const app = express();
-const cors = require("cors");
+
 /* ------------------------------------------------------- */
 // Required Modules:
-app.use(cors());
+
 // envVariables to process.env:
 require("dotenv").config();
 const HOST = process.env?.HOST || "127.0.0.1";
@@ -29,6 +29,9 @@ dbConnection();
 // Accept JSON:
 app.use(express.json());
 
+// Call static uploadFile:
+app.use("/upload", express.static("./upload"));
+
 // Check Authentication:
 app.use(require("./src/middlewares/authentication"));
 
@@ -36,7 +39,7 @@ app.use(require("./src/middlewares/authentication"));
 app.use(require("./src/middlewares/logger"));
 
 // res.getModelList():
-app.use(require("./src/middlewares/queryHandler"));
+app.use(require("./src/middlewares/findSearchSortPage"));
 
 /* ------------------------------------------------------- */
 // Routes:
@@ -45,11 +48,11 @@ app.use(require("./src/middlewares/queryHandler"));
 app.all("/", (req, res) => {
   res.send({
     error: false,
-    message: "Welcome to RENT A CAR API",
+    message: "Welcome to Stock Management API",
     documents: {
-      swagger: "/document/swagger",
-      redoc: "/document/redoc",
-      json: "/document/json",
+      swagger: "/documents/swagger",
+      redoc: "/documents/redoc",
+      json: "/documents/json",
     },
     user: req.user,
   });
@@ -59,13 +62,6 @@ app.all("/", (req, res) => {
 app.use(require("./src/routes"));
 
 /* ------------------------------------------------------- */
-//not Found middleware
-app.all("*", async (req, res) => {
-  res.status(404).send({
-    error: true,
-    message: "Route not available",
-  });
-});
 
 // errorHandler:
 app.use(require("./src/middlewares/errorHandler"));
@@ -75,4 +71,4 @@ app.listen(PORT, HOST, () => console.log(`http://${HOST}:${PORT}`));
 
 /* ------------------------------------------------------- */
 // Syncronization (must be in commentLine):
-require("./src/helpers/sync")();
+// require('./src/helpers/sync')() // !!! It clear database.
